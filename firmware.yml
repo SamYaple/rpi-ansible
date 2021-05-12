@@ -1,0 +1,14 @@
+---
+- name: set bootloader to stable channel
+  ansible.builtin.replace:
+    path: /etc/default/rpi-eeprom-update
+    regexp: default
+    replace: stable
+
+- name: update bootloader
+  ansible.builtin.command: rpi-eeprom-update -a
+  register: bootloader_update
+
+- name: reboot to update bootloader
+  ansible.builtin.reboot:
+  when: '"Please reboot to apply the update" in bootloader_update.stdout'

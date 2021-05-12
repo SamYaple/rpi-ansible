@@ -1,0 +1,56 @@
+---
+- name: setup apt proxy
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/proxy
+    content: |
+      Acquire::http { Proxy "http://{{ apt_proxy_server }}:3142"; }
+
+- name: upgrade packages
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: "{{ force_package_sync }}"
+
+- name: unmark all packages
+  ansible.builtin.shell: apt list --installed | awk -F/ '{print $1}' | xargs apt-mark auto
+  when: force_package_sync
+
+- name: install packages
+  ansible.builtin.apt:
+    name:
+      # kernel requirements
+      - device-tree-compiler
+      - flash-kernel
+      - libubootenv-tool
+      - linux-firmware-raspi2
+      - linux-raspi
+      - u-boot-rpi
+      - u-boot-tools
+      # misc utils
+      - bwm-ng
+      - htop
+      - iproute2
+      - iputils-ping
+      - less
+      - lsb-release
+      - mlocate
+      - mosh
+      - openssh-server
+      - parted
+      - python3
+      - python3-apt # used by ansible apt module
+      - rpi-eeprom
+      - sudo
+      - sysstat
+      - tmux
+      - vim
+    install_recommends: no
+
+- name: autoremove packages
+  ansible.builtin.apt:
+    autoremove: yes
+    purge: yes
+  when: force_package_sync
+
+- name: autoclean packages
+  ansible.builtin.apt:
+    autoclean: yes
