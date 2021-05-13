@@ -37,9 +37,6 @@
       - lvm2
       - podman
       - catatonit
-      # package compiling
-      - distcc
-      - gcc
       # common packages
       - bwm-ng
       - curl
