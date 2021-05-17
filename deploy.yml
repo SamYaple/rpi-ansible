@@ -2,30 +2,20 @@
 - name: setup hosts
   hosts: all
   vars:
-    apt_proxy_server: 192.168.55.254
-    ntp_server: 192.168.55.254
-    snapd_proxy_server: 192.168.55.254
-    docker_proxy_server: 192.168.55.254
+    apt_proxy_server: http://10.0.42.254:3142
+    ntp_server: 10.0.42.254
     force_package_sync: false
   remote_user: sam
   become: yes
   tasks:
-    - name: configure systemd-timesyncd
-      community.general.ini_file:
-        path: /etc/systemd/timesyncd.conf
-        section: Time
-        option: NTP
-        value: "{{ ntp_server }}"
-      register: timesyncd_conf
-
-    - name: restart systemd-timesyncd
-      ansible.builtin.systemd:
-        name: systemd-timesyncd
-        state: restarted
-      when: timesyncd_conf.changed
+    - name: setup internal resources
+      include_tasks: resources.yml
+      tags: resources
 
     - name: update packages
       include_tasks: apt.yml
+      tags: apt
 
     - name: update firmware
       include_tasks: firmware.yml
+      tags: firmware
