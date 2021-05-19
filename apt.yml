@@ -3,12 +3,10 @@
 # below will be purged from the system. Packages required to keep the system
 # running are either explictly listed below or protected from automatic
 # removal
-
 - name: upgrade packages
   ansible.builtin.apt:
     upgrade: dist
     update_cache: "{{ force_package_sync }}"
-
 
 # mark all installed packages as "automatically" installed. This alone doesn't
 # change the state of any packages on the system. It will allow them to be
@@ -44,6 +42,12 @@
       - systemd-container
       - podman
       - catatonit
+      # kubernetes
+      - conntrack
+      - ipset
+      - keepalived
+      - nginx
+      - socat
       # common packages
       - bwm-ng
       - curl

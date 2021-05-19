@@ -5,17 +5,34 @@
     apt_proxy_server: http://10.0.42.254:3142
     ntp_server: 10.0.42.254
     force_package_sync: false
+    k8s_configs: /home/sam/k8s/
   remote_user: sam
   become: yes
   tasks:
     - name: setup internal resources
       include_tasks: resources.yml
       tags: resources
+      args:
+        apply:
+          tags: resources
 
     - name: update packages
       include_tasks: apt.yml
       tags: apt
+      args:
+        apply:
+          tags: apt
 
     - name: update firmware
       include_tasks: firmware.yml
       tags: firmware
+      args:
+        apply:
+          tags: firmware
+
+    - name: setup kubernetes
+      include_tasks: kubernetes.yml
+      tags: kubernetes,k8s
+      args:
+        apply:
+          tags: kubernetes,k8s

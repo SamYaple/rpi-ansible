@@ -1,0 +1,32 @@
+---
+- name: copy CA to all nodes
+  copy:
+    src: "{{ k8s_configs }}/ca.pem"
+    dest: "{{ ansible_env.HOME }}/ca.pem"
+
+- name: copy certs, keys, and kubeconfigs to controllers
+  copy:
+    src: "{{ k8s_configs }}/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/{{ item }}"
+  loop:
+    - ca-key.pem
+    - kubernetes.pem
+    - kubernetes-key.pem
+    - service-account.pem
+    - service-account-key.pem
+    - admin.kubeconfig
+    - kube-controller-manager.kubeconfig
+    - kube-scheduler.kubeconfig
+    - encryption-config.yaml
+  when: "'controller' in group_names"
+
+- name: copy certs, keys, and kubeconfigs to workers
+  copy:
+    src: "{{ k8s_configs }}/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/{{ item }}"
+  loop:
+    - "{{ ansible_hostname }}.pem"
+    - "{{ ansible_hostname }}-key.pem"
+    - "{{ ansible_hostname }}.kubeconfig"
+    - kube-proxy.kubeconfig
+  when: "'worker' in group_names"
