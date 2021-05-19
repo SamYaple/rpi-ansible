@@ -2,27 +2,32 @@
 - name: setup config directory
   file:
     state: directory
-    path: /etc/etcd
+    path: "{{ etcd_config_dir }}"
 
 - name: setup data directory
   file:
     state: directory
-    path: /var/lib/etcd
+    path: "{{ etcd_data_dir }}"
     mode: '0700'
 
-- name: copy CA cert
+- name: install CA cert
   copy:
-    src: "{{ k8s_configs }}/ca.pem"
-    dest: /etc/etcd/ca.pem
+    src: "{{ certificates_dir }}/{{ item }}"
+    dest: "{{ etcd_config_dir }}/{{ item }}"
+  loop:
+    - ca.pem
+    - etcd-peer-ca.pem
   notify: restart etcd
 
-- name: copy server cert
+- name: install etcd server certs
   copy:
-    src: "{{ k8s_configs }}/{{ item }}"
-    dest: "/etc/etcd/{{ item }}"
+    src: "{{ certificates_dir }}/{{ ansible_fqdn }}/{{ item }}"
+    dest: "{{ etcd_config_dir }}/{{ item }}"
   loop:
-    - kubernetes.pem
-    - kubernetes-key.pem
+    - cert.pem
+    - cert-key.pem
+    - etcd-peer-cert.pem
+    - etcd-peer-cert-key.pem
   notify: restart etcd
 
 - name: template etcd systemd service
