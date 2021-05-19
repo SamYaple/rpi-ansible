@@ -1,0 +1,14 @@
+---
+- name: install etcd
+  include_tasks: install.yml
+
+- name: configure etcd
+  include_tasks: configure.yml
+
+- meta: flush_handlers
+
+- name: start etcd
+  ansible.builtin.systemd:
+    name: etcd
+    state: started
+    enabled: yes

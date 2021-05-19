@@ -1,0 +1,36 @@
+---
+- name: check if etcdctl exists
+  stat:
+    path: /usr/local/bin/etcdctl
+  register: etcdctl
+
+- name: check installed etcd version
+  block:
+    - name: get etcd version
+      command: /usr/local/bin/etcdctl version
+      register: existing_etcd_version
+      changed_when: no
+
+    - name: set installed etcd version fact
+      set_fact:
+        installed_etcd_version: "{{ existing_etcd_version.stdout_lines.0.split(' ')[-1] }}"
+  when:
+    - etcdctl.stat.exists
+    - etcdctl.stat.executable
+
+- name: check if etcd needs an update
+  set_fact:
+    update_etcd: True
+  when: installed_etcd_version is not defined or installed_etcd_version != etcd_version
+
+- name: download and install etcd
+  ansible.builtin.unarchive:
+    remote_src: yes
+    src: https://github.com/etcd-io/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-arm64.tar.gz
+    dest: /usr/local/bin
+    extra_opts:
+      - --strip-components=1
+      - etcd-v{{ etcd_version }}-linux-arm64/etcd
+      - etcd-v{{ etcd_version }}-linux-arm64/etcdctl
+  when: update_etcd
+  notify: restart etcd

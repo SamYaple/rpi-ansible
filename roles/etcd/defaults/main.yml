@@ -1,0 +1,5 @@
+---
+update_etcd: false
+etcd_version: 3.4.16
+etcd_initial_cluster_token: etcd_cluster_token_123456
+k8s_configs: /home/sam/k8s

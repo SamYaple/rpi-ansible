@@ -40,6 +40,11 @@ rpi-d4
 rpi-d5
 rpi-d6
 
+[etcd]
+rpi-d4
+rpi-d5
+rpi-d6
+
 [worker:children]
 groupa
 groupb

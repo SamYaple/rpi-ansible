@@ -1,0 +1,34 @@
+---
+- name: setup config directory
+  file:
+    state: directory
+    path: /etc/etcd
+
+- name: setup data directory
+  file:
+    state: directory
+    path: /var/lib/etcd
+    mode: '0700'
+
+- name: copy CA cert
+  copy:
+    src: "{{ k8s_configs }}/ca.pem"
+    dest: /etc/etcd/ca.pem
+  notify: restart etcd
+
+- name: copy server cert
+  copy:
+    src: "{{ k8s_configs }}/{{ item }}"
+    dest: "/etc/etcd/{{ item }}"
+  loop:
+    - kubernetes.pem
+    - kubernetes-key.pem
+  notify: restart etcd
+
+- name: template etcd systemd service
+  template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+  notify:
+    - systemctl daemon-reload
+    - restart etcd

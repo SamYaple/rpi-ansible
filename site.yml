@@ -1,0 +1,7 @@
+---
+- name: setup etcd
+  hosts: etcd
+  remote_user: sam
+  become: yes
+  roles:
+    - etcd
